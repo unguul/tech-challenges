@@ -12,10 +12,19 @@ class ListSurveysTest extends WebTestCase
         return require ROOT_PATH . "/src/Client/Webapp/app.php";
     }
 
-    public function testWeCanTest()
+    public function test_we_can_list_surveys()
     {
-        $this->assertTrue(true);
+        //prepare
+        $client = $this->createClient();
+
+        //execute
+        $crawler = $client->request('GET', '/surveys');
+
+        //assert
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals(
+            json_decode(file_get_contents(PATH_TO_FIXTURES . "/surveys.json"), true),
+            json_decode($client->getResponse()->getContent(), true)
+        );
     }
-
-
 }
