@@ -1,6 +1,6 @@
 <?php
 
-namespace functionnal;
+namespace IWD\JOBINTERVIEW\Tests\funnctional;
 
 use Silex\WebTestCase;
 
@@ -23,7 +23,7 @@ class ListSurveysTest extends WebTestCase
         //assert
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertEquals(
-            json_decode(file_get_contents(PATH_TO_FIXTURES . "/surveys.json"), true),
+            json_decode(file_get_contents(PATH_TO_FIXTURES . "/surveys-lite.json"), true),
             json_decode($client->getResponse()->getContent(), true)
         );
     }

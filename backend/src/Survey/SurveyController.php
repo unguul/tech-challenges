@@ -2,61 +2,73 @@
 
 namespace IWD\JOBINTERVIEW\Survey;
 
+use DateTime;
+use IWD\JOBINTERVIEW\Survey\Question\Answer\DateAnswer;
+use IWD\JOBINTERVIEW\Survey\Question\Answer\NumericAnswer;
+use IWD\JOBINTERVIEW\Survey\Question\Answer\QCMAnswer;
+use IWD\JOBINTERVIEW\Survey\Question\DateQuestion;
+use IWD\JOBINTERVIEW\Survey\Question\NumericQuestion;
+use IWD\JOBINTERVIEW\Survey\Question\QCMQuestion;
+use IWD\JOBINTERVIEW\Survey\Question\Question;
 use League\Flysystem\FilesystemInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SurveyController
 {
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
 
-    public function __construct(FilesystemInterface $filesystem)
+    /**
+     * @var SurveyRepository
+     */
+    private $repository;
+
+    /**
+     * SurveyController constructor.
+     * @param SurveyRepository $repository
+     */
+    public function __construct(SurveyRepository $repository)
     {
-        $this->filesystem = $filesystem;
+        $this->repository = $repository;
     }
 
     public function getList(Application $app): JsonResponse
     {
-        $surveys = [];
+        $surveys = $this->repository->findAll();
 
-        $rawSurveyFiles = $this->filesystem->listContents("/");
-
-        foreach ($rawSurveyFiles as $rawSurveyFile) {
-            $surveys[] = json_decode($this->filesystem->read($rawSurveyFile['path']), true);
-        }
-
-        $surveys = array_map(
-            function (array $rawSurvey) {
-                return [
-                    'name' => $rawSurvey['survey']['name'],
-                    'code' => $rawSurvey['survey']['code'],
-                ];
-            },
-            $surveys
-        );
-
+        //make sure them surveys are unique
+        /** @var Survey[] $uniqueSurveys */
         $uniqueSurveys = [];
 
         foreach ($surveys as $survey) {
             foreach ($uniqueSurveys as $uniqueSurvey) {
-                if ($uniqueSurvey['name'] === $survey['name'] && $uniqueSurvey['code'] === $survey['code']) {
+                if ($uniqueSurvey->getName() === $survey->getName() && $uniqueSurvey->getCode() === $survey->getCode(
+                    )) {
                     continue 2;
                 }
             }
             $uniqueSurveys[] = $survey;
         }
+        //sort them by name
         usort(
             $uniqueSurveys,
-            function (array $surveyA, array $surveyB) {
-                if ($surveyA['name'] === $surveyB['name']) {
+            function (Survey $surveyA, Survey $surveyB) {
+                if ($surveyA->getName() === $surveyB->getName()) {
                     return 0;
                 }
-                return ($surveyA['name'] < $surveyB['name']) ? -1 : 1;
+                return ($surveyA->getName() < $surveyB->getName()) ? -1 : 1;
             }
         );
-        return $app->json($uniqueSurveys);
+        //map them surveys to just their name and code
+        return $app->json(
+            array_map(
+                function (Survey $survey) {
+                    return [
+                        'name' => $survey->getName(),
+                        'code' => $survey->getCode(),
+                    ];
+                },
+                $uniqueSurveys
+            )
+        );
     }
 }
