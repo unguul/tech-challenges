@@ -42,6 +42,22 @@ class SurveyRepositoryTest extends TestCase
         $this->assertCount(2, $surveys);
     }
 
+    public function test_findByCode()
+    {
+        //prepare
+        $mockSurvey = $this->createMock(Survey::class);
+
+        $this->factory->expects($this->once())->method('make')->withConsecutive(
+            [$this->equalTo(json_decode(file_get_contents(PATH_TO_FIXTURES . "/surveys/1.json"), true))]
+        )->willReturn($mockSurvey);
+
+        //execute
+        $surveys = $this->sut->findByCode("XX1");
+
+        //assert
+        $this->assertCount(1, $surveys);
+    }
+
     protected function setUp()
     {
         parent::setUp();

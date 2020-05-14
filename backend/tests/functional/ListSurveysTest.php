@@ -1,6 +1,6 @@
 <?php
 
-namespace IWD\JOBINTERVIEW\Tests\funnctional;
+namespace IWD\JOBINTERVIEW\Tests\functional;
 
 use Silex\WebTestCase;
 

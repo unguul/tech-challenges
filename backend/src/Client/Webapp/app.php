@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use IWD\JOBINTERVIEW\ResultsAggregator;
+use IWD\JOBINTERVIEW\ResultsController;
 use IWD\JOBINTERVIEW\Survey\Factory as SurveyFactory;
 use IWD\JOBINTERVIEW\Survey\Question\Factory as QuestionFactory;
 use IWD\JOBINTERVIEW\Survey\SurveyController;
@@ -29,8 +31,14 @@ $app[SurveyFactory::class] = function (Application $app) {
 $app[SurveyRepository::class] = function (Application $app) {
     return new SurveyRepository($app[FilesystemInterface::class], $app[SurveyFactory::class]);
 };
+$app[ResultsAggregator::class] = function (Application $app) {
+    return new ResultsAggregator();
+};
 $app['controller.surveys'] = function (Application $app) {
     return new SurveyController($app[SurveyRepository::class]);
+};
+$app['controller.results'] = function (Application $app) {
+    return new ResultsController($app[SurveyRepository::class], $app[ResultsAggregator::class]);
 };
 
 $app->after(
@@ -41,10 +49,16 @@ $app->after(
 $app->get(
     '/',
     function () use ($app) {
-        return 'Status OK';
+        /** @var SurveyRepository $repository */
+        $repository = $app[SurveyRepository::class];
+
+        $surveys = $repository->findByCode("XX2");
+        return $app->json(count($surveys));
     }
 );
 $app->get('/surveys', "controller.surveys:getList");
+$app->get('/results', "controller.results:getGlobal");
+$app->get('/results/{surveyCode}', "controller.results:getForSurveyCode");
 
 $app->run();
 
