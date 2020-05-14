@@ -171,6 +171,40 @@ class ResultsAggregatorTest extends TestCase
         );
     }
 
+    public function test_getBestSellerAvailabilityRatioMap()
+    {
+        //prepare
+        $options = ["Product 1", "Product 2", "Product 3", "Product 4", "Product 5", "Product 6"];
+        $answer1 = [true, true, false, false, true, false];
+        $answer2 = [false, false, false, false, true, false];
+        $answer3 = [false, true, false, true, true, false];
+        $question1 = new QCMQuestion("my label", $options, new QCMAnswer($answer1));
+        $question2 = new QCMQuestion("my label", $options, new QCMAnswer($answer2));
+        $question3 = new QCMQuestion("my label", $options, new QCMAnswer($answer3));
+        $survey1 = new Survey("my survey", "whatever", [$question1]);
+        $survey2 = new Survey("my survey", "whatever", [$question2]);
+        $survey3 = new Survey("my survey", "whatever", [$question3]);
+        $surveys = [
+            $survey1,
+            $survey2,
+            $survey3,
+        ];
+        $this->sut->setSurveys($surveys);
+
+        //execute && assert
+        $this->assertEquals(
+            [
+                "Product 1" => "33.33 %",
+                "Product 2" => "66.67 %",
+                "Product 3" => "0.00 %",
+                "Product 4" => "33.33 %",
+                "Product 5" => "100.00 %",
+                "Product 6" => "0.00 %",
+            ],
+            $this->sut->getBestSellerAvailabilityRatioMap()
+        );
+    }
+
     protected function setUp()
     {
         parent::setUp();
