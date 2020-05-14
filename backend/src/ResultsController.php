@@ -15,6 +15,8 @@ class ResultsController
     const KEY_MAX_NUMBER_OF_PRODUCTS = "max_number_of_products";
     const KEY_AVERAGE_NUMBER_OF_PRODUCTS = "average_number_of_products";
     const KEY_BEST_SELLER_AVAILABILITY_MAP = "best_seller_availability";
+    const KEY_SURVEY_NAME = "survey_name";
+    const KEY_SURVEY_CODE = "survey_code";
     /**
      * @var SurveyRepository
      */
@@ -58,10 +60,16 @@ class ResultsController
     {
         $surveys = $this->repository->findByCode($surveyCode);
 
+        if (empty($surveys)) {
+            $app->abort(404, "Survey with the requested code was not found");
+        }
+
         $this->resultsAggregator->setSurveys($surveys);
 
         return $app->json(
             [
+                self::KEY_SURVEY_NAME => $surveys[0]->getName(),
+                self::KEY_SURVEY_CODE => $surveys[0]->getCode(),
                 self::KEY_TOTAL_REPLIES => $this->resultsAggregator->repliesCount(),
                 self::KEY_FIRST_STORE_VISIT => $this->resultsAggregator->getFirstVisitTimestamp()->format(DATE_W3C),
                 self::KEY_LAST_STORE_VISIT => $this->resultsAggregator->getLastVisitTimestamp()->format(DATE_W3C),

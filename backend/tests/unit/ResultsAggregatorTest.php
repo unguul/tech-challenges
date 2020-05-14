@@ -177,6 +177,4 @@ class ResultsAggregatorTest extends TestCase
 
         $this->sut = new ResultsAggregator();
     }
-
-
 }
