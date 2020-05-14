@@ -58,6 +58,18 @@ class SurveyRepositoryTest extends TestCase
         $this->assertCount(1, $surveys);
     }
 
+    public function test_findByCode_with_non_existing_survey_code()
+    {
+        //prepare
+        $this->factory->expects($this->never())->method('make');
+
+        //execute
+        $surveys = $this->sut->findByCode("some-non-existing-code");
+
+        //assert
+        $this->assertCount(0, $surveys);
+    }
+
     protected function setUp()
     {
         parent::setUp();

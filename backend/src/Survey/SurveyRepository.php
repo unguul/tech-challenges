@@ -56,6 +56,6 @@ class SurveyRepository
             }
         );
 
-        return array_map([$this->factory, 'make'], $rawSurveys);
+        return array_map([$this->factory, 'make'], array_values($rawSurveys));
     }
 }
