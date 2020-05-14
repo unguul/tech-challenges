@@ -2,18 +2,30 @@
 
 namespace IWD\JOBINTERVIEW\Survey;
 
+use League\Flysystem\FilesystemInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 class SurveyController
 {
-    public function getList(Application $app):JsonResponse{
+    /**
+     * @var FilesystemInterface
+     */
+    private $filesystem;
+
+    public function __construct(FilesystemInterface $filesystem)
+    {
+        $this->filesystem = $filesystem;
+    }
+
+    public function getList(Application $app): JsonResponse
+    {
         $surveys = [];
 
-        $surveyFilenames = array_diff(scandir(ROOT_PATH . "/data"), [".", ".."]);
-        foreach ($surveyFilenames as $surveyFilename) {
-            $surveys[] = json_decode(file_get_contents(ROOT_PATH . "/data/" . $surveyFilename), true);
+        $rawSurveyFiles = $this->filesystem->listContents("/");
+
+        foreach ($rawSurveyFiles as $rawSurveyFile) {
+            $surveys[] = json_decode($this->filesystem->read($rawSurveyFile['path']), true);
         }
 
         $surveys = array_map(
