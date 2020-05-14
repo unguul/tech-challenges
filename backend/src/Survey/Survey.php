@@ -73,4 +73,9 @@ class Survey
     {
         $this->questions = $questions;
     }
+
+    public function __toString():string
+    {
+        return $this->getCode();
+    }
 }

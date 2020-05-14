@@ -27,15 +27,12 @@ class SurveyRepository
      */
     public function findAll(): array
     {
-        $rawSurveys = [];
-
-        //grab json from fs
-        $surveyFiles = $this->filesystem->listContents("/");
-        //parse json
-        foreach ($surveyFiles as $surveyFile) {
-            $rawSurveys[] = json_decode($this->filesystem->read($surveyFile['path']), true);
-        }
-
+        $rawSurveys = array_map(
+            function (array $surveyFile) {
+                return json_decode($this->filesystem->read($surveyFile['path']), true);
+            },
+            $this->filesystem->listContents("/")
+        );
         return array_map([$this->factory, 'make'], $rawSurveys);
     }
 }

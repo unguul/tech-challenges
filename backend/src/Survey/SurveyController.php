@@ -35,19 +35,9 @@ class SurveyController
     {
         $surveys = $this->repository->findAll();
 
-        //make sure them surveys are unique
         /** @var Survey[] $uniqueSurveys */
-        $uniqueSurveys = [];
+        $uniqueSurveys = array_unique($surveys);
 
-        foreach ($surveys as $survey) {
-            foreach ($uniqueSurveys as $uniqueSurvey) {
-                if ($uniqueSurvey->getName() === $survey->getName() && $uniqueSurvey->getCode() === $survey->getCode(
-                    )) {
-                    continue 2;
-                }
-            }
-            $uniqueSurveys[] = $survey;
-        }
         //sort them by name
         usort(
             $uniqueSurveys,

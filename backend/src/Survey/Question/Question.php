@@ -2,7 +2,7 @@
 
 namespace IWD\JOBINTERVIEW\Survey\Question;
 
-use DateTime;
+use IWD\JOBINTERVIEW\Survey\Question\Answer\Answer;
 
 interface Question
 {
@@ -32,8 +32,8 @@ interface Question
     public function getOptions(): array;
 
     /**
-     * @return array|integer|DateTime The answer type depends on the type of question
+     * @return Answer The answer type depends on the type of question
      * @see Question::TYPES
      */
-    public function getAnswer();
+    public function getAnswer(): Answer;
 }

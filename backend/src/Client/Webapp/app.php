@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use IWD\JOBINTERVIEW\Survey\Factory as SurveyFactory;
+use IWD\JOBINTERVIEW\Survey\Question\Factory as QuestionFactory;
 use IWD\JOBINTERVIEW\Survey\SurveyController;
 use IWD\JOBINTERVIEW\Survey\SurveyRepository;
 use League\Flysystem\Adapter\Local;
@@ -18,11 +20,14 @@ $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 $app[FilesystemInterface::class] = function () {
     return new Filesystem(new Local(PATH_TO_DATA));
 };
-$app[\IWD\JOBINTERVIEW\Survey\Factory::class] = function () {
-    return new \IWD\JOBINTERVIEW\Survey\Factory();
+$app[QuestionFactory::class] = function () {
+    return new QuestionFactory();
+};
+$app[SurveyFactory::class] = function (Application $app) {
+    return new SurveyFactory($app[QuestionFactory::class]);
 };
 $app[SurveyRepository::class] = function (Application $app) {
-    return new SurveyRepository($app[FilesystemInterface::class], $app[\IWD\JOBINTERVIEW\Survey\Factory::class]);
+    return new SurveyRepository($app[FilesystemInterface::class], $app[SurveyFactory::class]);
 };
 $app['controller.surveys'] = function (Application $app) {
     return new SurveyController($app[SurveyRepository::class]);
