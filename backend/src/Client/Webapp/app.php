@@ -18,8 +18,11 @@ $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 $app[FilesystemInterface::class] = function () {
     return new Filesystem(new Local(PATH_TO_DATA));
 };
+$app[\IWD\JOBINTERVIEW\Survey\Factory::class] = function () {
+    return new \IWD\JOBINTERVIEW\Survey\Factory();
+};
 $app[SurveyRepository::class] = function (Application $app) {
-    return new SurveyRepository($app[FilesystemInterface::class]);
+    return new SurveyRepository($app[FilesystemInterface::class], $app[\IWD\JOBINTERVIEW\Survey\Factory::class]);
 };
 $app['controller.surveys'] = function (Application $app) {
     return new SurveyController($app[SurveyRepository::class]);
